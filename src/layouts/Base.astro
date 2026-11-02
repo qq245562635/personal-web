@@ -1,0 +1,56 @@
+---
+import '../styles/global.css';
+import { SITE } from '../config';
+import { withBase } from '../lib/url';
+
+interface Props {
+  title?: string;
+  description?: string;
+  back?: boolean;
+}
+
+const { title, description = SITE.description, back = false } = Astro.props;
+const pageTitle = title ? `${title} · ${SITE.name}` : SITE.name;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    {SITE.noindex && <meta name="robots" content="noindex, nofollow" />}
+    <meta name="theme-color" content="#FAF8F3" />
+    <link rel="icon" href={withBase('/favicon.svg')} type="image/svg+xml" />
+    <link rel="alternate" type="application/rss+xml" title={SITE.name} href={withBase('/rss.xml')} />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-header-inner">
+        {
+          back && (
+            <a class="icon-link" href={withBase('/')} aria-label="返回首页">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+            </a>
+          )
+        }
+        <a class:list={['site-name', { small: back }]} href={withBase('/')}>{SITE.name}</a>
+        {
+          !back && (
+            <nav class="site-nav" aria-label="主导航">
+              <a href={withBase('/')}>文章</a>
+              <a href={withBase('/archive/')} class="muted">归档</a>
+            </nav>
+          )
+        }
+      </div>
+    </header>
+    <main class="container">
+      <slot />
+    </main>
+    <footer class="site-footer container">© {SITE.name}</footer>
+  </body>
+</html>

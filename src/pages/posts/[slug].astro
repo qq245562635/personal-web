@@ -1,0 +1,71 @@
+---
+import { Image } from 'astro:assets';
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { getPublishedPosts, type Post } from '../../lib/posts';
+import { formatDate, withBase } from '../../lib/url';
+
+export async function getStaticPaths() {
+  const posts = await getPublishedPosts();
+  return posts.map((post, i) => ({
+    params: { slug: post.id },
+    props: { post, newer: posts[i - 1] ?? null, older: posts[i + 1] ?? null },
+  }));
+}
+
+interface Props {
+  post: Post;
+  newer: Post | null;
+  older: Post | null;
+}
+
+const { post, newer, older } = Astro.props;
+const { title, date, tags, cover, summary } = post.data;
+const { Content } = await render(post);
+---
+
+<Base title={title} description={summary} back>
+  <article class="article">
+    <header class="article-header">
+      {tags.length > 0 && <span class="kicker">{tags.join(' · ')}</span>}
+      <h1 class="article-title">{title}</h1>
+      <time class="meta" datetime={date.toISOString()}>{formatDate(date)}</time>
+    </header>
+
+    {cover && <Image class="cover" src={cover} alt="" />}
+
+    <div class="prose">
+      <Content />
+    </div>
+
+    {
+      tags.length > 0 && (
+        <p class="article-tags">
+          <span class="muted">标签</span>
+          {tags.map((tag) => (
+            <a href={withBase(`/tags/${tag}/`)}>{tag}</a>
+          ))}
+        </p>
+      )
+    }
+
+    {
+      (older || newer) && (
+        <nav class="adjacent" aria-label="相邻文章">
+          {older && (
+            <a href={withBase(`/posts/${older.id}/`)}>
+              <span class="meta">上一篇</span>
+              <span class="adjacent-title">{older.data.title}</span>
+            </a>
+          )}
+          {newer && (
+            <a href={withBase(`/posts/${newer.id}/`)}>
+              <span class="meta">下一篇</span>
+              <span class="adjacent-title">{newer.data.title}</span>
+            </a>
+          )}
+        </nav>
+      )
+    }
+  </article>
+</Base>

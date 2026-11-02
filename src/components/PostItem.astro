@@ -1,0 +1,20 @@
+---
+import { Image } from 'astro:assets';
+import type { Post } from '../lib/posts';
+import { withBase } from '../lib/url';
+
+interface Props {
+  post: Post;
+}
+
+const { post } = Astro.props;
+const { title, tags, cover } = post.data;
+---
+
+<a class="post-item" href={withBase(`/posts/${post.id}/`)}>
+  <span class="post-item-text">
+    <span class="post-item-title">{title}</span>
+    {tags.length > 0 && <span class="meta">{tags.join(' · ')}</span>}
+  </span>
+  {cover && <Image class="post-item-thumb" src={cover} alt="" width={144} height={144} />}
+</a>

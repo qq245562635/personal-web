@@ -1,0 +1,9 @@
+---
+import Base from '../layouts/Base.astro';
+import { withBase } from '../lib/url';
+---
+
+<Base title="找不到页面">
+  <h1 class="page-title">找不到这个页面</h1>
+  <p><a href={withBase('/')}>回到首页</a></p>
+</Base>
